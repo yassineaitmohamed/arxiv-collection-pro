@@ -1,0 +1,75 @@
+name: 📚 Initial Full Collection (Manual)
+
+# Ce workflow est pour la PREMIÈRE collection complète
+# Lance-le MANUELLEMENT depuis GitHub
+# Pour les mises à jour quotidiennes, utilise auto-update.yml
+
+on:
+  workflow_dispatch:  # Lancement manuel uniquement
+    inputs:
+      start_year:
+        description: 'Année de début'
+        required: true
+        default: '2020'
+      end_year:
+        description: 'Année de fin'
+        required: true
+        default: '2025'
+
+jobs:
+  full-collection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320  # Max 3 jours
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: 📦 Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install requests
+    
+    - name: 🚀 Full Collection
+      run: |
+        echo "🚀 Collection de ${{ github.event.inputs.start_year }} à ${{ github.event.inputs.end_year }}"
+        echo "⚠️  Ceci peut prendre PLUSIEURS HEURES/JOURS!"
+        
+        python3 arxiv_full_collector.py collect ${{ github.event.inputs.start_year }} ${{ github.event.inputs.end_year }}
+    
+    - name: 📤 Export to JSON
+      run: |
+        python3 arxiv_full_collector.py export articles.json
+    
+    - name: 📊 Show statistics
+      run: |
+        python3 arxiv_full_collector.py stats
+    
+    - name: 📦 Check file sizes
+      run: |
+        echo "📊 Tailles des fichiers:"
+        du -h articles.json
+        du -h arxiv_full_collection.db
+    
+    - name: 💾 Commit results
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        git add articles.json arxiv_full_collection.db
+        git commit -m "📚 Initial collection: ${{ github.event.inputs.start_year }}-${{ github.event.inputs.end_year }}"
+        git push
+    
+    - name: 📦 Upload artifacts (backup)
+      uses: actions/upload-artifact@v3
+      with:
+        name: full-collection-${{ github.event.inputs.start_year }}-${{ github.event.inputs.end_year }}
+        path: |
+          articles.json
+          arxiv_full_collection.db
+        retention-days: 90

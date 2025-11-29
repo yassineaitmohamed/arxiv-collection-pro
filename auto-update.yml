@@ -1,0 +1,129 @@
+name: 🚀 Auto Update arXiv Collection
+
+# Quand exécuter:
+# - Tous les jours à 2h du matin (UTC)
+# - Manuellement depuis GitHub
+# - À chaque push sur main (optionnel)
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Tous les jours à 2h UTC
+  workflow_dispatch:  # Permet lancement manuel
+  # push:
+  #   branches: [ main ]  # Décommente pour auto-update à chaque push
+
+jobs:
+  update-collection:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. Récupère le code du repo
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Garde tout l'historique
+    
+    # 2. Configure Python
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    # 3. Installe les dépendances
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+    
+    # 4. Récupère la base de données existante (si elle existe)
+    - name: 💾 Download existing database
+      continue-on-error: true
+      run: |
+        if [ -f "arxiv_full_collection.db" ]; then
+          echo "✅ Base de données existante trouvée"
+        else
+          echo "ℹ️  Pas de base existante, on va en créer une nouvelle"
+        fi
+    
+    # 5. Collecte les nouveaux articles (année en cours seulement)
+    - name: 📚 Collect new articles
+      run: |
+        echo "🚀 Collection des articles de $(date +%Y)..."
+        python3 arxiv_full_collector.py collect $(date +%Y) $(date +%Y)
+      timeout-minutes: 120  # Max 2 heures
+    
+    # 6. Export vers JSON
+    - name: 📤 Export to JSON
+      run: |
+        echo "📤 Export vers articles.json..."
+        python3 arxiv_full_collector.py export articles.json
+    
+    # 7. Vérifie la taille du JSON
+    - name: 📊 Check JSON size
+      run: |
+        size=$(du -h articles.json | cut -f1)
+        echo "📦 Taille du JSON: $size"
+        
+        # Alerte si > 100MB
+        size_bytes=$(stat -c%s articles.json)
+        if [ $size_bytes -gt 104857600 ]; then
+          echo "⚠️  WARNING: JSON > 100MB ($size)"
+          echo "Consider using Git LFS or filtering data"
+        fi
+    
+    # 8. Affiche les stats
+    - name: 📊 Show statistics
+      run: |
+        python3 arxiv_full_collector.py stats
+    
+    # 9. Commit et push les changements
+    - name: 💾 Commit and push changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        # Ajoute les fichiers modifiés
+        git add articles.json
+        git add arxiv_full_collection.db
+        
+        # Vérifie s'il y a des changements
+        if git diff --staged --quiet; then
+          echo "ℹ️  Pas de nouveaux articles"
+        else
+          # Commit
+          git commit -m "🔄 Auto-update: $(date '+%Y-%m-%d %H:%M UTC') [skip ci]"
+          
+          # Push
+          git push
+          
+          echo "✅ Changements poussés vers GitHub"
+        fi
+    
+    # 10. Crée un artifact (backup)
+    - name: 📦 Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: arxiv-collection-${{ github.run_number }}
+        path: |
+          articles.json
+          arxiv_full_collection.db
+        retention-days: 30  # Garde 30 jours
+
+  # Job séparé pour déployer sur GitHub Pages
+  deploy:
+    needs: update-collection
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: main
+    
+    - name: 🚀 Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        publish_branch: gh-pages
+        exclude_assets: '.github,*.py,*.sh,*.db'

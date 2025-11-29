@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 arXiv Collection Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="night-mode">
+    <!-- Animated Canvas Background -->
+    <canvas id="particleCanvas"></canvas>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="title-section">
+                <h1 class="title">📚 arXiv Collection Pro</h1>
+                <button id="themeToggle" class="theme-btn">☀️ Day Mode</button>
+            </div>
+            <div class="stats" id="headerStats">
+                Loading statistics...
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search articles by title or abstract...">
+            <button id="searchBtn" class="search-btn">Search</button>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label class="filter-label">📂 Category:</label>
+                <div class="category-buttons" id="categoryButtons">
+                    <button class="cat-btn active" data-category="all">All</button>
+                    <button class="cat-btn" data-category="math.DG">math.DG</button>
+                    <button class="cat-btn" data-category="math.SG">math.SG</button>
+                    <button class="cat-btn" data-category="math-ph">math-ph</button>
+                    <button class="cat-btn" data-category="math.AG">math.AG</button>
+                    <button class="cat-btn" data-category="math.QA">math.QA</button>
+                    <button class="cat-btn" data-category="math.RT">math.RT</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">📅 Year:</label>
+                <select id="yearFilter" class="year-select">
+                    <option value="all">All</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Pagination Top -->
+        <div class="pagination">
+            <button id="firstPageTop" class="pag-btn">⏮ First</button>
+            <button id="prevPageTop" class="pag-btn">◀ Previous</button>
+            <span id="pageInfoTop" class="page-info">Page 1/1 | 0 articles</span>
+            <button id="nextPageTop" class="pag-btn">Next ▶</button>
+            <button id="lastPageTop" class="pag-btn">Last ⏭</button>
+        </div>
+
+        <!-- Articles Table -->
+        <div class="table-container">
+            <table class="articles-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Title</th>
+                        <th style="width: 25%">Authors</th>
+                        <th style="width: 10%">Year</th>
+                        <th style="width: 15%">Category</th>
+                        <th style="width: 10%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="articlesTableBody">
+                    <!-- Articles will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Bottom -->
+        <div class="pagination">
+            <button id="firstPageBottom" class="pag-btn">⏮ First</button>
+            <button id="prevPageBottom" class="pag-btn">◀ Previous</button>
+            <span id="pageInfoBottom" class="page-info">Page 1/1 | 0 articles</span>
+            <button id="nextPageBottom" class="pag-btn">Next ▶</button>
+            <button id="lastPageBottom" class="pag-btn">Last ⏭</button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="statsBtn" class="action-btn">📊 Statistics</button>
+            <button id="exportBtn" class="action-btn">💾 Export Data</button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Created by <strong>Yassine Ait Mohamed</strong> | arXiv Collection Pro © 2025</p>
+            <p>Data from <a href="https://arxiv.org" target="_blank">arXiv.org</a></p>
+        </footer>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="statsBody"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
