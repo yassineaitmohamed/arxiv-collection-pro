@@ -1,11 +1,7 @@
 name: 📚 Initial Full Collection (Manual)
 
-# Ce workflow est pour la PREMIÈRE collection complète
-# Lance-le MANUELLEMENT depuis GitHub
-# Pour les mises à jour quotidiennes, utilise auto-update.yml
-
 on:
-  workflow_dispatch:  # Lancement manuel uniquement
+  workflow_dispatch:
     inputs:
       start_year:
         description: 'Année de début'
@@ -19,7 +15,7 @@ on:
 jobs:
   full-collection:
     runs-on: ubuntu-latest
-    timeout-minutes: 4320  # Max 3 jours
+    timeout-minutes: 4320
     
     steps:
     - name: 📥 Checkout repository
@@ -39,7 +35,6 @@ jobs:
       run: |
         echo "🚀 Collection de ${{ github.event.inputs.start_year }} à ${{ github.event.inputs.end_year }}"
         echo "⚠️  Ceci peut prendre PLUSIEURS HEURES/JOURS!"
-        
         python3 arxiv_full_collector.py collect ${{ github.event.inputs.start_year }} ${{ github.event.inputs.end_year }}
     
     - name: 📤 Export to JSON
@@ -60,27 +55,15 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        
         git add articles.json arxiv_full_collection.db
         git commit -m "📚 Initial collection: ${{ github.event.inputs.start_year }}-${{ github.event.inputs.end_year }}"
         git push
     
-    - name: 📦 Upload artifacts (backup)
-      uses: actions/upload-artifact@v4  # ✅ CHANGÉ de v3 à v4
+    - name: 📦 Upload artifacts
+      uses: actions/upload-artifact@v4
       with:
         name: full-collection-${{ github.event.inputs.start_year }}-${{ github.event.inputs.end_year }}
         path: |
           articles.json
           arxiv_full_collection.db
         retention-days: 90
-```
-
----
-
-## 🔧 **COMMENT CORRIGER:**
-
-### **Option 1: Sur GitHub directement (RAPIDE!)**
-
-1. **Va sur:**
-```
-   https://github.com/yassineaitmohamed/arxiv-collection-pro/blob/main/.github/workflows/initial-collection.yml
