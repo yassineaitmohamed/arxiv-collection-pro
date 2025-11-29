@@ -10,11 +10,11 @@ on:
       start_year:
         description: 'Année de début'
         required: true
-        default: '1990'  # ✅ CHANGÉ de 2020 à 1990
+        default: '1990'
       end_year:
         description: 'Année de fin'
         required: true
-        default: '2025'  # ✅ Reste 2025
+        default: '2025'
 
 jobs:
   full-collection:
@@ -66,10 +66,21 @@ jobs:
         git push
     
     - name: 📦 Upload artifacts (backup)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # ✅ CHANGÉ de v3 à v4
       with:
         name: full-collection-${{ github.event.inputs.start_year }}-${{ github.event.inputs.end_year }}
         path: |
           articles.json
           arxiv_full_collection.db
         retention-days: 90
+```
+
+---
+
+## 🔧 **COMMENT CORRIGER:**
+
+### **Option 1: Sur GitHub directement (RAPIDE!)**
+
+1. **Va sur:**
+```
+   https://github.com/yassineaitmohamed/arxiv-collection-pro/blob/main/.github/workflows/initial-collection.yml
