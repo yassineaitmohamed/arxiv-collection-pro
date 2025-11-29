@@ -101,7 +101,7 @@ jobs:
     
     # 10. Crée un artifact (backup)
     - name: 📦 Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # ✅ CORRIGÉ: v3 → v4
       with:
         name: arxiv-collection-${{ github.run_number }}
         path: |
