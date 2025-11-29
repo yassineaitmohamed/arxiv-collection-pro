@@ -10,11 +10,11 @@ on:
       start_year:
         description: 'Année de début'
         required: true
-        default: '2020'
+        default: '1990'  # ✅ CHANGÉ de 2020 à 1990
       end_year:
         description: 'Année de fin'
         required: true
-        default: '2025'
+        default: '2025'  # ✅ Reste 2025
 
 jobs:
   full-collection:
